@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자기 학습 체크 일지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f7f8;
+    --surface:#ffffff;
+    --surface-muted:#eeeeef;
+    --ink:#0d0d0d;
+    --ink-soft:#6e6e80;
+    --ink-faint:#9b9ba7;
+    --accent:#10a37f;
+    --accent-ink:#ffffff;
+    --accent-soft:#e6f6f1;
+    --line:#e3e3e6;
+    --danger:#e0393e;
+    --sat-blue:#2f6fb0;
+    --shadow: 0 1px 2px rgba(0,0,0,.05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1a1a;
+      --surface:#242424;
+      --surface-muted:#2f2f2f;
+      --ink:#ececec;
+      --ink-soft:#b3b3b3;
+      --ink-faint:#8a8a8f;
+      --accent:#19c37d;
+      --accent-ink:#0d0d0d;
+      --accent-soft:#123527;
+      --line:#3d3d3f;
+      --danger:#f2777a;
+      --sat-blue:#6ab0e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1a1a;
+    --surface:#242424;
+    --surface-muted:#2f2f2f;
+    --ink:#ececec;
+    --ink-soft:#b3b3b3;
+    --ink-faint:#8a8a8f;
+    --accent:#19c37d;
+    --accent-ink:#0d0d0d;
+    --accent-soft:#123527;
+    --line:#3d3d3f;
+    --danger:#f2777a;
+    --sat-blue:#6ab0e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    padding-bottom:64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Inter',system-ui,sans-serif; font-weight:700; margin:0; text-wrap:balance;}
+  button{font-family:inherit;}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px;}
+
+  /* App bar */
+  .appbar{
+    padding:28px 20px 18px;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .appbar .titles .eyebrow{
+    font-size:12px; letter-spacing:.02em; color:var(--ink-faint); font-weight:600;
+  }
+  .appbar h1{font-size:24px; font-weight:700; margin-top:2px; color:var(--ink); letter-spacing:-.01em;}
+  .appbar .sub{color:var(--ink-soft); font-size:13.5px; margin-top:6px; max-width:520px; line-height:1.55;}
+  .appbar .actions{display:flex; gap:8px;}
+  .iconbtn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-soft);
+    padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .iconbtn:hover{color:var(--ink); border-color:var(--ink-faint); background:var(--surface-muted);}
+
+  /* tabs */
+  .tabbar{
+    position:sticky; top:0; z-index:20;
+    background:var(--bg);
+    padding:12px 20px 16px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    border-bottom:1px solid var(--line);
+  }
+  .tabtrack{
+    display:flex; gap:2px; background:var(--surface-muted); border-radius:10px; padding:3px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    border:none; background:transparent; color:var(--ink-soft);
+    padding:7px 14px; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.active{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+  .tab.addmonth{color:var(--ink-faint); font-weight:700;}
+  .tab.addmonth:hover{color:var(--accent);}
+  .tab.removemonth{color:var(--ink-faint); font-weight:700;}
+  .tab.removemonth:hover{color:var(--danger);}
+  .tabbar .spacer{flex:1;}
+  .progresspill{
+    font-size:12.5px; color:var(--ink-soft); background:var(--surface-muted);
+    padding:6px 12px; border-radius:8px; font-weight:600; font-variant-numeric: tabular-nums;
+  }
+
+  /* category quickbar */
+  .catbar{
+    margin:18px 20px 4px; padding:14px 16px; background:var(--surface); border:1px solid var(--line);
+    border-radius:12px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .catbar .label{font-size:11.5px; font-weight:600; color:var(--ink-faint); letter-spacing:.02em;}
+  .catrow{
+    display:flex; align-items:center; gap:8px; background:var(--surface-muted); border-radius:10px;
+    padding:6px 6px 6px 8px; border:1px solid transparent;
+  }
+  .catrow:focus-within{border-color:var(--accent);}
+  .catrow.dragging{opacity:.4;}
+  .catrow.dragover{border-color:var(--accent); background:var(--accent-soft);}
+  .draghandle{
+    cursor:grab; color:var(--ink-faint); font-size:14px; line-height:1; padding:0 2px; flex:none;
+    user-select:none;
+  }
+  .draghandle:active{cursor:grabbing;}
+  .catrow input{
+    border:none; background:transparent; color:var(--ink); font-size:13px; font-weight:600;
+    font-family:inherit; width:104px; padding:2px 0;
+  }
+  .catrow input:focus{outline:none;}
+  .daytoggles{display:flex; gap:3px;}
+  .daytoggle{
+    width:22px; height:22px; border-radius:6px; border:1px solid var(--line); background:var(--surface);
+    color:var(--ink-faint); font-size:11px; font-weight:600; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .daytoggle.on{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .daytoggle.holidaytoggle{width:auto; padding:0 7px; margin-left:3px; font-size:10.5px;}
+  .catrow .x{
+    width:18px; height:18px; border-radius:50%; border:none; background:transparent; color:var(--ink-faint);
+    cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .catrow .x:hover{background:var(--danger); color:#fff;}
+  .addcat{
+    border:1px dashed var(--line); background:transparent; color:var(--ink-soft);
+    padding:6px 14px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .addcat:hover{border-color:var(--accent); color:var(--accent);}
+
+  /* weeks */
+  .weeks{padding:18px 20px 10px; display:flex; flex-direction:column; gap:16px;}
+  .weekcard{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    overflow:hidden;
+  }
+  .weekhead{
+    display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    padding:14px 18px 10px; flex-wrap:wrap;
+  }
+  .weekhead .wname{font-weight:700; font-size:15px;}
+  .weekhead .wrange{color:var(--ink-faint); font-size:12.5px; font-variant-numeric: tabular-nums;}
+
+  .tablewrap{overflow-x:auto;}
+  table.grid{border-collapse:collapse; width:100%; min-width:600px;}
+  table.grid th, table.grid td{border-bottom:1px solid var(--line); padding:0; }
+  table.grid thead th{
+    padding:8px 6px; font-size:12px; color:var(--ink-faint); font-weight:600; text-align:center;
+    border-bottom:1px solid var(--line); background:var(--surface);
+  }
+  table.grid thead th .dnum{display:block; font-size:14px; font-weight:700; color:var(--ink); font-variant-numeric: tabular-nums;}
+  table.grid thead th.today{color:var(--accent);}
+  table.grid thead th.today .dnum{color:var(--accent);}
+  table.grid thead th.dRed{color:var(--danger);}
+  table.grid thead th.dRed .dnum{color:var(--danger);}
+  table.grid thead th.dBlue{color:var(--sat-blue);}
+  table.grid thead th.dBlue .dnum{color:var(--sat-blue);}
+  th.catcol, td.catcol{
+    position:sticky; left:0; background:var(--surface); z-index:2;
+    min-width:150px; max-width:190px; text-align:left; padding:9px 12px !important;
+    border-right:1px solid var(--line);
+  }
+  td.catcol input{
+    width:100%; border:none; background:transparent; color:var(--ink); font-size:13.5px; font-weight:700;
+    font-family:inherit; padding:2px 0;
+  }
+  td.catcol input:focus{outline:none; border-bottom:1px solid var(--accent);}
+  td.catcol .del{
+    border:none; background:transparent; color:var(--ink-faint); cursor:pointer; font-size:12px;
+    float:right; opacity:0; transition:opacity .15s;
+  }
+  tr:hover td.catcol .del{opacity:1;}
+  td.catcol .del:hover{color:var(--danger);}
+
+  td.daycell{width:52px; text-align:center; padding:6px !important;}
+  .checkbtn{
+    width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--surface-muted);
+    cursor:pointer; font-size:14px; color:transparent; margin:0 auto; display:block;
+  }
+  .checkbtn.done{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .checkbtn:hover{border-color:var(--accent);}
+  td.daycell.today .checkbtn{box-shadow:0 0 0 2px var(--accent-soft);}
+  td.daycell.offday{color:var(--ink-faint); font-size:13px; font-weight:600;}
+  .checkbtn-ghost{
+    width:30px; height:30px; border-radius:8px; border:1px solid transparent;
+    margin:0 auto; display:block; visibility:hidden;
+  }
+
+  tfoot td{padding:8px 6px !important; text-align:center; font-size:11.5px; color:var(--ink-faint); font-weight:700; font-variant-numeric: tabular-nums;}
+  tfoot td.catcol{background:var(--surface); text-align:left; font-weight:700; color:var(--ink-faint); text-transform:uppercase; font-size:10.5px; letter-spacing:.05em;}
+
+  .rowtotal{font-size:11px; color:var(--ink-faint); font-weight:700; font-variant-numeric: tabular-nums;}
+  td.totalcol{width:44px; text-align:center; font-size:12px; color:var(--ink-soft); font-weight:700; font-variant-numeric: tabular-nums;}
+
+  .empty{
+    margin:30px 20px; padding:36px 20px; text-align:center; border:1px dashed var(--line); border-radius:14px; color:var(--ink-faint);
+  }
+
+  /* floating print button */
+  .fab{
+    position:fixed; right:22px; bottom:22px; z-index:30;
+    background:var(--ink); color:var(--bg); border:none; border-radius:999px;
+    padding:13px 20px; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);
+    display:flex; align-items:center; gap:8px;
+  }
+  .fab:hover{background:var(--accent); color:var(--accent-ink);}
+
+  /* print overlay */
+  #printOverlay{
+    display:none; position:fixed; inset:0; background:var(--bg); z-index:100; overflow:auto;
+  }
+  #printOverlay.open{display:block;}
+  .printbar{
+    position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:10px; z-index:5;
+  }
+  .printbar h2{font-size:16px; font-weight:700;}
+  .printbtn{background:var(--accent); color:var(--accent-ink); border:none; border-radius:9px; padding:9px 16px; font-weight:700; font-size:13px; cursor:pointer;}
+  .closebtn{background:transparent; border:1px solid var(--line); color:var(--ink-soft); border-radius:9px; padding:9px 14px; font-weight:700; font-size:13px; cursor:pointer;}
+
+  .printsheet{max-width:1040px; margin:26px auto 60px; padding:0 20px;}
+  .printsheet h3{font-size:22px; margin-bottom:4px; text-align:center;}
+  .printsheet .psub{color:var(--ink-faint); font-size:12.5px; margin-bottom:18px; text-align:center;}
+  table.printgrid{
+    border-collapse:collapse; width:100%; table-layout:fixed;
+    --print-font-size:11px; --print-row-h:27px;
+  }
+  table.printgrid th, table.printgrid td{
+    border:1px solid var(--line); text-align:center; vertical-align:middle;
+    font-size:var(--print-font-size); padding:2px;
+  }
+  table.printgrid tbody tr{height:var(--print-row-h);}
+  table.printgrid th{background:var(--surface-muted); font-weight:700;}
+  table.printgrid th .pdnum{display:block; font-size:1.05em; font-variant-numeric: tabular-nums;}
+  table.printgrid th .pdow{display:block; font-size:0.7em; font-weight:600; color:var(--ink-faint); margin-top:1px;}
+  table.printgrid th.dRed .pdow{color:var(--danger);}
+  table.printgrid th.dBlue .pdow{color:var(--sat-blue);}
+  table.printgrid td.pcat{
+    text-align:center; font-weight:700; font-size:0.765em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  table.printgrid td.pmark{color:var(--accent); font-weight:800; font-size:1.2em;}
+  table.printgrid td.pna{color:var(--ink-faint); font-size:1.05em;}
+  table.printgrid th.dRed{color:var(--danger);}
+  table.printgrid th.dBlue{color:var(--sat-blue);}
+
+  .no-print{}
+  @media print{
+    body{background:#fff; padding-bottom:0;}
+    .no-print, .appbar, .tabbar, .catbar, .weeks, .fab{display:none !important;}
+    #printOverlay{position:static; display:block !important; height:auto; overflow:visible; background:#fff;}
+    .printbar{display:none !important;}
+    .printsheet{margin:0; max-width:none; padding:0;}
+    table.printgrid th, table.printgrid td{border:1px solid #999; color:#000; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    table.printgrid td.pmark{color:#000;}
+    table.printgrid th.dRed, table.printgrid th.dRed .pdow{color:#d0201a !important;}
+    table.printgrid th.dBlue, table.printgrid th.dBlue .pdow{color:#1a5fa8 !important;}
+    @page{size: A4 landscape; margin:10mm;}
+  }
+
+  @media (max-width:600px){
+    .appbar h1{font-size:23px;}
+    th.catcol, td.catcol{min-width:110px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="titles">
+    <div class="eyebrow" id="eyebrow">2026.09 — 2026.12</div>
+    <h1>자기 학습 체크 일지</h1>
+    <div class="sub">학습 항목마다 실행할 요일(일~토)을 한 번 정해두면 모든 주에 계속 적용돼요. 해당 요일의 칸을 눌러 체크하고, 오른쪽 아래 버튼으로 월간 계획표를 인쇄하세요.</div>
+  </div>
+  <div class="actions no-print">
+    <button class="iconbtn" id="btnExport">내보내기</button>
+    <button class="iconbtn" id="btnImport">가져오기</button>
+    <input type="file" id="fileImport" accept="application/json" hidden>
+  </div>
+</div>
+
+<div class="tabbar no-print" id="tabbar"></div>
+<div class="catbar no-print" id="catbar"></div>
+<div class="weeks" id="weeks"></div>
+
+<button class="fab no-print" id="btnPrint">🖨 월간 계획표 인쇄</button>
+
+<div id="printOverlay">
+  <div class="printbar no-print">
+    <h2 id="printTitle">월간 계획표</h2>
+    <div style="display:flex; gap:8px;">
+      <button class="printbtn" id="btnDoPrint">인쇄하기</button>
+      <button class="closebtn" id="btnClosePrint">닫기</button>
+    </div>
+  </div>
+  <div class="printsheet" id="printSheet"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "study-journal-2026-09to12";
+  var DAY_LABELS = ["일","월","화","수","목","금","토"];
+  var START_Y = 2026, START_M = 8; /* 2026년 9월부터 시작 */
+  var BASE_END_Y = 2026, BASE_END_M = 11; /* 기본 제공 마지막 달(12월) — 이 이전으로는 삭제 불가 */
+
+  /* ---------- 대한민국 공휴일/국경일 ---------- */
+  /* 매년 날짜가 고정인 국경일·공휴일 (양력). 제헌절은 현재 공휴일은 아니지만
+     국경일이라 달력 관례상 빨간 날로 표기. */
+  var FIXED_HOLIDAYS = {
+    "01-01": "신정",
+    "03-01": "삼일절",
+    "05-05": "어린이날",
+    "06-06": "현충일",
+    "07-17": "제헌절",
+    "08-15": "광복절",
+    "10-03": "개천절",
+    "10-09": "한글날",
+    "12-25": "크리스마스"
+  };
+  /* 설날·추석 등 음력 기반 연휴와 대체공휴일은 해마다 날짜가 달라 공식 자료로
+     확인된 연도만 정확히 반영. 등록되지 않은 연도는 위 양력 고정 공휴일만 표시. */
+  var YEARLY_HOLIDAYS = {
+    2026: {
+      "02-16": "설날 연휴", "02-17": "설날", "02-18": "설날 연휴",
+      "03-02": "대체공휴일(삼일절)",
+      "05-24": "부처님오신날", "05-25": "대체공휴일(부처님오신날)",
+      "08-17": "대체공휴일(광복절)",
+      "09-24": "추석 연휴", "09-25": "추석", "09-26": "추석 연휴",
+      "10-05": "대체공휴일(개천절)"
+    },
+    2027: {
+      "02-06": "설날 연휴", "02-07": "설날", "02-08": "설날 연휴", "02-09": "대체공휴일(설날)",
+      "03-01": "삼일절",
+      "05-13": "부처님오신날",
+      "08-16": "대체공휴일(광복절)",
+      "09-14": "추석 연휴", "09-15": "추석", "09-16": "추석 연휴",
+      "10-04": "대체공휴일(개천절)",
+      "10-11": "대체공휴일(한글날)",
+      "12-27": "대체공휴일(크리스마스)"
+    }
+  };
+  function getHolidayName(d){
+    var mmdd = pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+    var y = d.getFullYear();
+    if(YEARLY_HOLIDAYS[y] && YEARLY_HOLIDAYS[y][mmdd]) return YEARLY_HOLIDAYS[y][mmdd];
+    if(FIXED_HOLIDAYS[mmdd]) return FIXED_HOLIDAYS[mmdd];
+    return null;
+  }
+
+  function monthLabel(y,m){ return (y===START_Y ? "" : y+".") + (m+1) + "월"; }
+
+  function getMonths(){
+    var list = [];
+    var y = START_Y, m = START_M;
+    while(true){
+      list.push({y:y, m:m, label: monthLabel(y,m)});
+      if(y===state.lastMonth.y && m===state.lastMonth.m) break;
+      m++; if(m>11){ m=0; y++; }
+      if(list.length>240) break;
+    }
+    return list;
+  }
+
+  function addNextMonth(){
+    var y = state.lastMonth.y, m = state.lastMonth.m;
+    m++; if(m>11){ m=0; y++; }
+    state.lastMonth = {y:y, m:m};
+    saveState();
+    activeMonthIdx = getMonths().length-1;
+    renderAll();
+  }
+
+  function canRemoveLastMonth(){
+    return state.lastMonth.y > BASE_END_Y || (state.lastMonth.y===BASE_END_Y && state.lastMonth.m > BASE_END_M);
+  }
+
+  function removeLastMonth(){
+    if(!canRemoveLastMonth()) return;
+    var y = state.lastMonth.y, m = state.lastMonth.m;
+    m--; if(m<0){ m=11; y--; }
+    state.lastMonth = {y:y, m:m};
+    saveState();
+    var maxIdx = getMonths().length-1;
+    if(activeMonthIdx>maxIdx) activeMonthIdx = maxIdx;
+    renderAll();
+  }
+
+  function uid(){ return Math.random().toString(36).slice(2,10); }
+  function pad2(n){ return n<10 ? "0"+n : ""+n; }
+  function dateKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+  function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+  function addDays(d,n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+
+  function allDays(){ return [true,true,true,true,true,true,true]; }
+
+  function defaultState(){
+    return {
+      categories: [
+        {id: uid(), name: "영어 단어 암기", days: allDays()},
+        {id: uid(), name: "독서 30분", days: [false,true,false,true,false,true,false]},
+        {id: uid(), name: "온라인 강의 수강", days: [false,false,true,false,true,false,false]}
+      ],
+      checks: {},
+      lastMonth: {y:BASE_END_Y, m:BASE_END_M}
+    };
+  }
+
+  function normalize(s){
+    s.categories.forEach(function(cat){
+      if(!Array.isArray(cat.days) || cat.days.length!==7){
+        cat.days = allDays();
+      } else {
+        cat.days = cat.days.map(function(v){ return !!v; });
+      }
+      cat.holiday = !!cat.holiday;
+    });
+    if(!s.lastMonth || typeof s.lastMonth.y!=="number" || typeof s.lastMonth.m!=="number"){
+      s.lastMonth = {y:BASE_END_Y, m:BASE_END_M};
+    }
+    return s;
+  }
+
+  /* 요일 설정에 해당하거나, '공휴일' 옵션이 켜진 항목이 평일(월~금)에 지정된
+     법정 공휴일(대한민국 달력)인 날이면 체크 대상. 토·일과 겹친 공휴일은 토·일 설정을 따른다. */
+  function isScheduled(cat, dateObj){
+    var dow = dateObj.getDay();
+    if(cat.days[dow]) return true;
+    return !!cat.holiday && dow>=1 && dow<=5 && !!getHolidayName(dateObj);
+  }
+  function isSpacerCat(cat){ return !cat.name; }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if(!parsed || !Array.isArray(parsed.categories) || typeof parsed.checks !== "object"){
+        return defaultState();
+      }
+      return normalize(parsed);
+    }catch(e){
+      return defaultState();
+    }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ /* storage unavailable — app still works for this session */ }
+  }
+
+  var state = loadState();
+  var activeMonthIdx = 0;
+  var dragCatId = null;
+  (function pickInitialMonth(){
+    var today = new Date();
+    var months = getMonths();
+    for(var i=0;i<months.length;i++){
+      if(months[i].y===today.getFullYear() && months[i].m===today.getMonth()){ activeMonthIdx=i; return; }
+    }
+    activeMonthIdx = months.length-1;
+  })();
+
+  function checkKey(dateObj, catId){ return dateKey(dateObj)+"|"+catId; }
+
+  function getMonthWeeks(year, monthIdx0){
+    var weeks = [];
+    var cursor = new Date(year, monthIdx0, 1);
+    cursor.setDate(cursor.getDate() - cursor.getDay() - 14);
+    for(var i=0;i<12;i++){
+      var weekStart = new Date(cursor);
+      var thursday = addDays(weekStart, 4);
+      if(thursday.getFullYear()===year && thursday.getMonth()===monthIdx0){
+        weeks.push(weekStart);
+      }
+      cursor.setDate(cursor.getDate()+7);
+    }
+    return weeks;
+  }
+
+  function weekDays(weekStart){
+    var days=[];
+    for(var i=0;i<7;i++) days.push(addDays(weekStart,i));
+    return days;
+  }
+
+  function fmt(d){ return (d.getMonth()+1)+"/"+d.getDate(); }
+
+  /* ---------- render: tabs ---------- */
+  function renderTabs(){
+    var bar = document.getElementById("tabbar");
+    bar.innerHTML = "";
+    var months = getMonths();
+
+    var track = document.createElement("div");
+    track.className = "tabtrack";
+
+    months.forEach(function(mo, idx){
+      var b = document.createElement("button");
+      b.className = "tab" + (idx===activeMonthIdx ? " active":"");
+      b.textContent = mo.label;
+      b.addEventListener("click", function(){ activeMonthIdx = idx; renderAll(); });
+      track.appendChild(b);
+    });
+
+    var addm = document.createElement("button");
+    addm.className = "tab addmonth";
+    addm.textContent = "+";
+    addm.title = "다음 달 추가";
+    addm.addEventListener("click", addNextMonth);
+    track.appendChild(addm);
+
+    if(canRemoveLastMonth()){
+      var removem = document.createElement("button");
+      removem.className = "tab removemonth";
+      removem.textContent = "－";
+      removem.title = "마지막으로 추가한 달("+months[months.length-1].label+") 삭제";
+      removem.addEventListener("click", function(){
+        var last = months[months.length-1];
+        if(confirm(last.label+" 탭을 삭제할까요? (체크 기록은 남아있으며, 다시 추가하면 복원됩니다)")){
+          removeLastMonth();
+        }
+      });
+      track.appendChild(removem);
+    }
+
+    bar.appendChild(track);
+
+    var spacer = document.createElement("div");
+    spacer.className = "spacer";
+    bar.appendChild(spacer);
+
+    var pill = document.createElement("div");
+    pill.className = "progresspill";
+    pill.textContent = monthProgressText();
+    bar.appendChild(pill);
+
+    var eyebrow = document.getElementById("eyebrow");
+    if(eyebrow){
+      var last = months[months.length-1];
+      eyebrow.textContent = "2026.09 — " + last.y + "." + pad2(last.m+1);
+    }
+  }
+
+  function monthProgressText(){
+    var mo = getMonths()[activeMonthIdx];
+    var weeks = getMonthWeeks(mo.y, mo.m);
+    var total=0, done=0;
+    weeks.forEach(function(ws){
+      weekDays(ws).forEach(function(d){
+        if(d.getMonth()!==mo.m) return;
+        state.categories.forEach(function(cat){
+          if(isSpacerCat(cat) || !isScheduled(cat, d)) return;
+          total++;
+          if(state.checks[checkKey(d,cat.id)]) done++;
+        });
+      });
+    });
+    if(total===0) return "0%";
+    return Math.round(done/total*100) + "% 완료";
+  }
+
+  /* ---------- render: category bar ---------- */
+  function renderCatbar(){
+    var bar = document.getElementById("catbar");
+    bar.innerHTML = "";
+    var label = document.createElement("span");
+    label.className = "label";
+    label.textContent = "학습 항목";
+    bar.appendChild(label);
+
+    state.categories.forEach(function(cat){
+      var row = document.createElement("span");
+      row.className = "catrow";
+      row.draggable = true;
+      row.dataset.catId = cat.id;
+
+      row.addEventListener("dragstart", function(e){
+        dragCatId = cat.id;
+        row.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        try{ e.dataTransfer.setData("text/plain", cat.id); }catch(err){}
+      });
+      row.addEventListener("dragend", function(){
+        row.classList.remove("dragging");
+        dragCatId = null;
+        Array.from(bar.querySelectorAll(".catrow.dragover")).forEach(function(el){ el.classList.remove("dragover"); });
+      });
+      row.addEventListener("dragover", function(e){
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        row.classList.add("dragover");
+      });
+      row.addEventListener("dragleave", function(){
+        row.classList.remove("dragover");
+      });
+      row.addEventListener("drop", function(e){
+        e.preventDefault();
+        row.classList.remove("dragover");
+        if(!dragCatId || dragCatId===cat.id) return;
+        var fromIdx = state.categories.findIndex(function(c){ return c.id===dragCatId; });
+        var toIdx = state.categories.findIndex(function(c){ return c.id===cat.id; });
+        if(fromIdx<0 || toIdx<0) return;
+        var moved = state.categories.splice(fromIdx,1)[0];
+        state.categories.splice(toIdx,0,moved);
+        saveState(); renderAll();
+      });
+
+      var handle = document.createElement("span");
+      handle.className = "draghandle";
+      handle.textContent = "⠿";
+      handle.title = "드래그해서 순서 변경";
+      row.appendChild(handle);
+
+      var input = document.createElement("input");
+      input.value = cat.name;
+      input.placeholder = "(빈 항목 · 여백용)";
+      input.setAttribute("data-cat", cat.id);
+      input.addEventListener("change", function(){
+        cat.name = input.value.trim();
+        saveState(); renderAll();
+      });
+      row.appendChild(input);
+
+      if(!isSpacerCat(cat)){
+        var toggles = document.createElement("span");
+        toggles.className = "daytoggles";
+        DAY_LABELS.forEach(function(label, dow){
+          var t = document.createElement("button");
+          t.className = "daytoggle" + (cat.days[dow] ? " on":"");
+          t.textContent = label;
+          t.title = label+"요일에 "+(cat.days[dow]?"적용 중 (눌러서 해제)":"미적용 (눌러서 적용)");
+          t.addEventListener("click", function(){
+            cat.days[dow] = !cat.days[dow];
+            saveState(); renderAll();
+          });
+          toggles.appendChild(t);
+        });
+        var hb = document.createElement("button");
+        hb.className = "daytoggle holidaytoggle" + (cat.holiday ? " on":"");
+        hb.textContent = "공휴일";
+        hb.title = cat.holiday
+          ? "평일(월~금)에 지정된 공휴일(국경일·연휴·대체공휴일)에도 체크 가능 (눌러서 해제)"
+          : "평일(월~금)에 지정된 공휴일에도 체크하려면 눌러서 적용";
+        hb.addEventListener("click", function(){
+          cat.holiday = !cat.holiday;
+          saveState(); renderAll();
+        });
+        toggles.appendChild(hb);
+        row.appendChild(toggles);
+      }
+
+      var x = document.createElement("button");
+      x.className = "x";
+      x.textContent = "×";
+      x.title = "항목 삭제";
+      x.addEventListener("click", function(){
+        var label = cat.name || "이름 없는 항목";
+        if(confirm('"'+label+'" 항목을 삭제할까요? 체크 기록도 함께 사라집니다.')){
+          state.categories = state.categories.filter(function(c){ return c.id!==cat.id; });
+          Object.keys(state.checks).forEach(function(k){
+            if(k.indexOf("|"+cat.id)>-1) delete state.checks[k];
+          });
+          saveState(); renderAll();
+        }
+      });
+      row.appendChild(x);
+      bar.appendChild(row);
+    });
+
+    var add = document.createElement("button");
+    add.className = "addcat";
+    add.textContent = "+ 항목 추가";
+    add.addEventListener("click", function(){
+      var newCat = {id: uid(), name:"새 항목", days: allDays(), holiday: false};
+      state.categories.push(newCat);
+      saveState(); renderAll();
+      var input = document.querySelector('input[data-cat="'+newCat.id+'"]');
+      if(input){ input.focus(); input.select(); }
+    });
+    bar.appendChild(add);
+  }
+
+  /* ---------- render: week cards ---------- */
+  function renderWeeks(){
+    var wrap = document.getElementById("weeks");
+    wrap.innerHTML = "";
+    var mo = getMonths()[activeMonthIdx];
+    var weeks = getMonthWeeks(mo.y, mo.m);
+    var today = new Date();
+
+    if(state.categories.length===0){
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "아직 학습 항목이 없어요. 위 '+ 항목 추가' 버튼으로 첫 항목을 만들어보세요.";
+      wrap.appendChild(empty);
+      return;
+    }
+
+    weeks.forEach(function(weekStart, wIdx){
+      var days = weekDays(weekStart);
+      var card = document.createElement("div");
+      card.className = "weekcard";
+
+      var head = document.createElement("div");
+      head.className = "weekhead";
+      var wname = document.createElement("div");
+      wname.className = "wname";
+      wname.textContent = mo.label + " " + (wIdx+1) + "주차";
+      var wrange = document.createElement("div");
+      wrange.className = "wrange";
+      wrange.textContent = fmt(days[0]) + " (일) – " + fmt(days[6]) + " (토)";
+      head.appendChild(wname); head.appendChild(wrange);
+      card.appendChild(head);
+
+      var tablewrap = document.createElement("div");
+      tablewrap.className = "tablewrap";
+      var table = document.createElement("table");
+      table.className = "grid";
+
+      var thead = document.createElement("thead");
+      var htr = document.createElement("tr");
+      var hcat = document.createElement("th");
+      hcat.className = "catcol";
+      hcat.textContent = "구분";
+      htr.appendChild(hcat);
+      days.forEach(function(d,i){
+        var th = document.createElement("th");
+        var isToday = sameDay(d, today);
+        var holidayName = getHolidayName(d);
+        var cls = [];
+        if(isToday) cls.push("today");
+        if(holidayName || i===0) cls.push("dRed");
+        else if(i===6) cls.push("dBlue");
+        th.className = cls.join(" ");
+        if(holidayName) th.title = holidayName;
+        th.innerHTML = "<span>"+DAY_LABELS[i]+"</span><span class='dnum'>"+d.getDate()+"</span>";
+        htr.appendChild(th);
+      });
+      var htot = document.createElement("th");
+      htot.textContent = "합계";
+      htr.appendChild(htot);
+      thead.appendChild(htr);
+      table.appendChild(thead);
+
+      var tbody = document.createElement("tbody");
+      state.categories.forEach(function(cat){
+        var tr = document.createElement("tr");
+        var tdcat = document.createElement("td");
+        tdcat.className = "catcol";
+        tdcat.textContent = cat.name;
+        tr.appendChild(tdcat);
+
+        var spacer = isSpacerCat(cat);
+        var weekCount = 0, weekTotal = 0;
+        days.forEach(function(d){
+          var td = document.createElement("td");
+          td.className = "daycell" + (sameDay(d,today) ? " today":"");
+          if(spacer){
+            /* 여백용 항목: 체크박스/하이픈 없이 완전히 빈 칸이지만, 일반 항목과 같은 줄 높이를 유지 */
+            var ghost = document.createElement("span");
+            ghost.className = "checkbtn-ghost";
+            td.appendChild(ghost);
+          } else if(!isScheduled(cat, d)){
+            td.className += " offday";
+            td.textContent = "-";
+          } else {
+            weekTotal++;
+            var btn = document.createElement("button");
+            var k = checkKey(d, cat.id);
+            var isDone = !!state.checks[k];
+            if(isDone) weekCount++;
+            btn.className = "checkbtn" + (isDone ? " done":"");
+            btn.textContent = "✓";
+            btn.addEventListener("click", function(){
+              state.checks[k] = !state.checks[k];
+              saveState(); renderAll();
+            });
+            td.appendChild(btn);
+          }
+          tr.appendChild(td);
+        });
+
+        var tdtot = document.createElement("td");
+        tdtot.className = "totalcol";
+        tdtot.textContent = spacer ? "" : weekCount+"/"+weekTotal;
+        tr.appendChild(tdtot);
+
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      var tfoot = document.createElement("tfoot");
+      var ftr = document.createElement("tr");
+      var fcat = document.createElement("td");
+      fcat.className = "catcol";
+      fcat.textContent = "일별 완료";
+      ftr.appendChild(fcat);
+      days.forEach(function(d){
+        var td = document.createElement("td");
+        var c=0, n=0;
+        state.categories.forEach(function(cat){
+          if(isSpacerCat(cat) || !isScheduled(cat, d)) return;
+          n++;
+          if(state.checks[checkKey(d,cat.id)]) c++;
+        });
+        td.textContent = n===0 ? "-" : c+"/"+n;
+        ftr.appendChild(td);
+      });
+      var fempty = document.createElement("td");
+      ftr.appendChild(fempty);
+      tfoot.appendChild(ftr);
+      table.appendChild(tfoot);
+
+      tablewrap.appendChild(table);
+      card.appendChild(tablewrap);
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderAll(){
+    renderTabs();
+    renderCatbar();
+    renderWeeks();
+  }
+
+  /* ---------- print view ---------- */
+  function daysInMonth(y,m0){ return new Date(y, m0+1, 0).getDate(); }
+
+  /* A4 가로 인쇄 시 표가 한 페이지(제목 제외 약 680px 높이, 약 1000px 너비)를
+     꽉 채우도록 항목 수·날짜 수에 맞춰 줄 높이·글자 크기를 역산한다.
+     세로(줄 높이)로 정한 글자 크기가 가로(일자 두 자리 숫자가 각 날짜 칸에
+     들어갈 폭)를 넘지 않도록 다시 한 번 제한한다. */
+  function computePrintSizing(rowCount, nDays){
+    var availH = 544, availW = 1000; /* 행 높이 20% 축소 반영 (680 * 0.8) */
+    var rows = Math.max(rowCount, 1) + 1; /* +헤더 줄 */
+    var rowH = Math.max(20, Math.min(64, Math.floor(availH / rows)));
+    var fontByHeight = Math.max(11, Math.min(26, Math.round(rowH * 0.42)));
+
+    var catColGuess = Math.max(90, Math.min(170, Math.round(fontByHeight * 7.5)));
+    var dayColW = (availW - catColGuess) / Math.max(nDays, 1);
+    var fontByWidth = Math.max(9, Math.floor((dayColW - 4) / 1.25));
+
+    var fontPx = Math.max(9, Math.min(fontByHeight, fontByWidth));
+    var catColW = Math.max(90, Math.min(170, Math.round(fontPx * 7.5)));
+    return {rowH: rowH, fontPx: fontPx, catColW: catColW};
+  }
+
+  function openPrintView(){
+    var mo = getMonths()[activeMonthIdx];
+    var nDays = daysInMonth(mo.y, mo.m);
+    var titleText = mo.y+". "+(mo.m+1)+"월";
+    document.getElementById("printTitle").textContent = titleText;
+
+    var sheet = document.getElementById("printSheet");
+    sheet.innerHTML = "";
+    var h3 = document.createElement("h3");
+    h3.textContent = titleText;
+    sheet.appendChild(h3);
+
+    var table = document.createElement("table");
+    table.className = "printgrid";
+    var sizing = computePrintSizing(state.categories.length, nDays);
+    table.style.setProperty("--print-row-h", sizing.rowH+"px");
+    table.style.setProperty("--print-font-size", sizing.fontPx+"px");
+
+    var colgroup = document.createElement("colgroup");
+    var catcol = document.createElement("col");
+    catcol.style.width = sizing.catColW+"px";
+    colgroup.appendChild(catcol);
+    for(var ci=0; ci<nDays; ci++){ colgroup.appendChild(document.createElement("col")); }
+    table.appendChild(colgroup);
+
+    var thead = document.createElement("thead");
+    var htr = document.createElement("tr");
+    var hcat = document.createElement("th");
+    hcat.style.textAlign="left"; hcat.style.paddingLeft="10px"; hcat.textContent="";
+    htr.appendChild(hcat);
+    for(var d=1; d<=nDays; d++){
+      var dateForHeader = new Date(mo.y, mo.m, d);
+      var dow = dateForHeader.getDay();
+      var th = document.createElement("th");
+      var holidayName = getHolidayName(dateForHeader);
+      if(holidayName || dow===0) th.className="dRed";
+      else if(dow===6) th.className="dBlue";
+      th.innerHTML = "<span class='pdnum'>"+d+"</span><span class='pdow'>"+DAY_LABELS[dow]+"</span>";
+      htr.appendChild(th);
+    }
+    thead.appendChild(htr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    if(state.categories.length===0){
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = nDays+1;
+      td0.style.padding = "20px";
+      td0.style.color = "var(--ink-faint)";
+      td0.textContent = "학습 항목이 없습니다.";
+      tr0.appendChild(td0);
+      tbody.appendChild(tr0);
+    }
+    state.categories.forEach(function(cat){
+      var tr = document.createElement("tr");
+      var tdc = document.createElement("td");
+      tdc.className = "pcat";
+      tdc.textContent = cat.name;
+      tr.appendChild(tdc);
+      var spacer = isSpacerCat(cat);
+      for(var d=1; d<=nDays; d++){
+        var td = document.createElement("td");
+        if(!spacer){
+          var dateObj = new Date(mo.y, mo.m, d);
+          if(!isScheduled(cat, dateObj)){
+            td.className = "pna";
+            td.textContent = "-";
+          } else if(state.checks[checkKey(dateObj, cat.id)]){
+            td.className = "pmark";
+            td.textContent = "✓";
+          }
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    sheet.appendChild(table);
+
+    document.getElementById("printOverlay").classList.add("open");
+  }
+
+  function closePrintView(){
+    document.getElementById("printOverlay").classList.remove("open");
+  }
+
+  /* ---------- export / import ---------- */
+  function exportData(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var now = new Date();
+    a.href = url;
+    a.download = "학습체크일지_"+now.getFullYear()+pad2(now.getMonth()+1)+pad2(now.getDate())+".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var parsed = JSON.parse(reader.result);
+        if(parsed && Array.isArray(parsed.categories) && typeof parsed.checks==="object"){
+          state = normalize(parsed);
+          saveState();
+          renderAll();
+        } else {
+          alert("올바른 백업 파일이 아닙니다.");
+        }
+      }catch(e){
+        alert("파일을 읽을 수 없습니다.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- wire up ---------- */
+  document.getElementById("btnPrint").addEventListener("click", openPrintView);
+  document.getElementById("btnClosePrint").addEventListener("click", closePrintView);
+  document.getElementById("btnDoPrint").addEventListener("click", function(){ window.print(); });
+  document.getElementById("btnExport").addEventListener("click", exportData);
+  document.getElementById("btnImport").addEventListener("click", function(){
+    document.getElementById("fileImport").click();
+  });
+  document.getElementById("fileImport").addEventListener("change", function(e){
+    if(e.target.files && e.target.files[0]) importData(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
