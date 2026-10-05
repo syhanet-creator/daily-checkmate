@@ -135,8 +135,8 @@
   .catrow.dragging{opacity:.4;}
   .catrow.dragover{border-color:var(--accent); background:var(--accent-soft);}
   .draghandle{
-    cursor:grab; color:var(--ink-faint); font-size:14px; line-height:1; padding:0 2px; flex:none;
-    user-select:none;
+    cursor:grab; color:var(--ink-faint); font-size:16px; line-height:1; padding:8px 6px; margin:-8px -2px; flex:none;
+    user-select:none; -webkit-user-select:none; touch-action:none; -webkit-touch-callout:none;
   }
   .draghandle:active{cursor:grabbing;}
   .catrow input{
@@ -296,6 +296,9 @@
   @media (max-width:600px){
     .appbar h1{font-size:23px;}
     th.catcol, td.catcol{min-width:110px;}
+    .catrow{flex-wrap:wrap; max-width:100%;}
+    .catrow input{width:140px;}
+    .daytoggles{flex-wrap:wrap;}
   }
 </style>
 </head>
@@ -608,44 +611,55 @@
     state.categories.forEach(function(cat){
       var row = document.createElement("span");
       row.className = "catrow";
-      row.draggable = true;
       row.dataset.catId = cat.id;
 
-      row.addEventListener("dragstart", function(e){
-        dragCatId = cat.id;
-        row.classList.add("dragging");
-        e.dataTransfer.effectAllowed = "move";
-        try{ e.dataTransfer.setData("text/plain", cat.id); }catch(err){}
-      });
-      row.addEventListener("dragend", function(){
-        row.classList.remove("dragging");
-        dragCatId = null;
-        Array.from(bar.querySelectorAll(".catrow.dragover")).forEach(function(el){ el.classList.remove("dragover"); });
-      });
-      row.addEventListener("dragover", function(e){
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        row.classList.add("dragover");
-      });
-      row.addEventListener("dragleave", function(){
-        row.classList.remove("dragover");
-      });
-      row.addEventListener("drop", function(e){
-        e.preventDefault();
-        row.classList.remove("dragover");
-        if(!dragCatId || dragCatId===cat.id) return;
-        var fromIdx = state.categories.findIndex(function(c){ return c.id===dragCatId; });
-        var toIdx = state.categories.findIndex(function(c){ return c.id===cat.id; });
-        if(fromIdx<0 || toIdx<0) return;
-        var moved = state.categories.splice(fromIdx,1)[0];
-        state.categories.splice(toIdx,0,moved);
-        saveState(); renderAll();
-      });
-
+      /* 포인터 이벤트 기반 순서 변경: 마우스·터치(모바일) 모두 동작.
+         HTML5 드래그앤드롭은 터치 화면에서 작동하지 않아 대체함. */
       var handle = document.createElement("span");
       handle.className = "draghandle";
       handle.textContent = "⠿";
       handle.title = "드래그해서 순서 변경";
+      function rowUnder(e){
+        var el = document.elementFromPoint(e.clientX, e.clientY);
+        var r = el && el.closest ? el.closest(".catrow") : null;
+        return (r && r.parentNode===bar) ? r : null;
+      }
+      function clearOver(){
+        Array.from(bar.querySelectorAll(".catrow.dragover")).forEach(function(el){ el.classList.remove("dragover"); });
+      }
+      handle.addEventListener("pointerdown", function(e){
+        if(e.pointerType==="mouse" && e.button!==0) return;
+        e.preventDefault();
+        dragCatId = cat.id;
+        row.classList.add("dragging");
+        try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+      });
+      handle.addEventListener("pointermove", function(e){
+        if(dragCatId!==cat.id) return;
+        clearOver();
+        var t = rowUnder(e);
+        if(t && t!==row) t.classList.add("dragover");
+        if(e.clientY < 70) window.scrollBy(0,-14);
+        else if(e.clientY > window.innerHeight-70) window.scrollBy(0,14);
+      });
+      function finishDrag(e, commit){
+        if(dragCatId!==cat.id) return;
+        var t = commit ? rowUnder(e) : null;
+        clearOver();
+        row.classList.remove("dragging");
+        dragCatId = null;
+        if(t && t!==row){
+          var fromIdx = state.categories.findIndex(function(c){ return c.id===cat.id; });
+          var toIdx = state.categories.findIndex(function(c){ return c.id===t.dataset.catId; });
+          if(fromIdx>=0 && toIdx>=0){
+            var moved = state.categories.splice(fromIdx,1)[0];
+            state.categories.splice(toIdx,0,moved);
+            saveState(); renderAll();
+          }
+        }
+      }
+      handle.addEventListener("pointerup", function(e){ finishDrag(e, true); });
+      handle.addEventListener("pointercancel", function(e){ finishDrag(e, false); });
       row.appendChild(handle);
 
       var input = document.createElement("input");
